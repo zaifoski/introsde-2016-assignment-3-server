@@ -9,12 +9,16 @@ import javax.jws.soap.SOAPBinding;
 import javax.jws.soap.SOAPBinding.Style;
 import javax.jws.soap.SOAPBinding.Use;
 
-import introsde.assignment.soap.document.model.LifeStatus;
+import introsde.assignment.soap.document.model.Measure;
+//import introsde.assignment.soap.document.model.LifeStatus;
 import introsde.assignment.soap.document.model.Person;
 
 @WebService
 @SOAPBinding(style = Style.DOCUMENT, use=Use.LITERAL) //optional
 public interface People {
+
+	@WebMethod(operationName="cleanDb")
+	public void clean();
     
 	/*
 	 * Method #2: readPerson(Long id) => Person | should give
@@ -60,8 +64,8 @@ public interface People {
      * Method #5: deletePerson(Long id) should delete the 
      * Person identified by {id} from the system
      */
-    @WebMethod(operationName="deletePerson")
-    @WebResult(name="personId") 
+    @WebMethod(operationName="deleteP")
+    @WebResult(name="success") 
     public int deletePerson(@WebParam(name="personId") int id);
 
     
@@ -72,27 +76,40 @@ public interface People {
      */
     @WebMethod(operationName="updatePersonHealthProfile")
     @WebResult(name="hpId") 
-    public int updatePersonHP(@WebParam(name="personId") int id, @WebParam(name="healthProfile") LifeStatus hp);
-
+    //public int updatePersonHP(@WebParam(name="personId") int id,@WebParam(name="healthProfile") LifeStatus hp);
+    public Long updatePersonHP(int id, Measure m);
+    
     /*
      * Method #6: readPersonHistory(Long id, String measureType) => List 
      * should return the list of values (the history) of {measureType}
      *  (e.g. weight) for Person identified by {id}
      */
+    @WebMethod(operationName="readPersonHistory")
+    @WebResult(name="measuresList") 
+    public List<String> readPersonHistory(int id, String measureType);
 
     /*
      * Method #7: readMeasureTypes() => List should return the list of measures
      */
+    @WebMethod(operationName="readMeasureTypes")
+    @WebResult(name="measuresList") 
+    public List<Measure> readMeasureTypes();
     
     /*
      * Method #8: readPersonMeasure(Long id, String measureType, Long mid) => Measure
      *  should return the value of {measureType} (e.g. weight) identified by 
      *  {mid} for Person identified by {id}
      */
+    @WebMethod(operationName="readPersonMeasure")
+    @WebResult(name="measureType") 
+    public String readPersonMeasure(int id, String measureType, int mid);
     
     /*
      * Method #9: savePersonMeasure(Long id, Measure m) =>should save a new 
      * measure object {m} (e.g. weight) of Person identified by {id} and 
      * archive the old value in the history
      */
+    @WebMethod(operationName="savePersonMeasure")
+    @WebResult(name="measureId") 
+    public Long savePersonMeasure(int id, Measure m);
 }

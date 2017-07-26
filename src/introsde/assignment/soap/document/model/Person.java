@@ -1,28 +1,13 @@
 package introsde.assignment.soap.document.model;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import introsde.assignment.soap.document.dao.LifeCoachDao;
 
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -30,47 +15,39 @@ import introsde.assignment.soap.document.dao.LifeCoachDao;
  * 
  */
 @Entity
-@Table(name="Person")
+@Table(name="\"Person\"")
 @NamedQuery(name="Person.findAll", query="SELECT p FROM Person p")
-@XmlRootElement
 public class Person implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	@Id
-	// For sqlite in particular, you need to use the following @GeneratedValue annotation
-	// This holds also for the other tables
-	// SQLITE implements auto increment ids through named sequences that are stored in a 
-	// special table named "sqlite_sequence"
-	@GeneratedValue(generator="sqlite_person")
-	@TableGenerator(name="sqlite_person", table="sqlite_sequence",
-	    pkColumnName="name", valueColumnName="seq",
-	    pkColumnValue="Person")
-	@Column(name="idPerson")
-	private int idPerson;
-
-	@Column(name="lastname")
-	private String lastname;
-
-	@Column(name="name")
-	private String name;
-
-	@Column(name="username")
-	private String username;
-	
 	@Temporal(TemporalType.DATE)
-	@Column(name="birthdate")
+	@Column(name="\"birthdate\"")
 	private Date birthdate;
-	
-	@Column(name="email")
+
+	@Column(name="\"email\"")
 	private String email;
 
-	// mappedBy must be equal to the name of the attribute in LifeStatus that maps this relation
-	@OneToMany(mappedBy="person",cascade=CascadeType.ALL,fetch=FetchType.EAGER)
-	private List<LifeStatus> lifeStatus;
-	
+    @Id 
+    @GeneratedValue(generator="sqlite_person")
+    @TableGenerator(name="sqlite_person", table="sqlite_sequence",
+        pkColumnName="name", valueColumnName="seq",
+        pkColumnValue="Person")
+	@Column(name="\"idPerson\"")
+	private int idPerson;
+
+	@Column(name="\"lastname\"")
+	private String lastname;
+
+	@Column(name="\"name\"")
+	private String name;
+
+	//bi-directional many-to-one association to Measure
+	@OneToMany(mappedBy="person")
+	private List<Measure> measures;
+
 	public Person() {
 	}
-	
+
 	public Date getBirthdate() {
 		return this.birthdate;
 	}
@@ -111,28 +88,42 @@ public class Person implements Serializable {
 		this.name = name;
 	}
 
-	public String getUsername() {
-		return this.username;
+	public List<Measure> getMeasures() {
+		return this.measures;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setMeasures(List<Measure> measures) {
+		this.measures = measures;
 	}
+
+	public Measure addMeasure(Measure measure) {
+		getMeasures().add(measure);
+		measure.setPerson(this);
+
+		return measure;
+	}
+
+	public Measure removeMeasure(Measure measure) {
+		getMeasures().remove(measure);
+		measure.setPerson(null);
+
+		return measure;
+	}
+	
 
 	// the XmlElementWrapper defines the name of node in which the list of LifeStatus elements
 	// will be inserted
-	@XmlElementWrapper(name = "Measurements")
-	public List<LifeStatus> getLifeStatus() {
-	    return lifeStatus;
+	/*
+	@XmlElementWrapper(name = "Measure")
+	public List<Measure> getLifeStatus() {
+	    return measures;
 	}
-
-	public void setLifeStatus(List<LifeStatus> param) {
-	    this.lifeStatus = param;
-	}
+	*/
 	
 	// Database operations
 	// Notice that, for this example, we create and destroy and entityManager on each operation. 
 	// How would you change the DAO to not having to create the entity manager every time? 
+	
 	public static Person getPersonById(int personId) {
 		EntityManager em = LifeCoachDao.instance.createEntityManager();
 		Person p = em.find(Person.class, personId);

@@ -6,18 +6,19 @@
              version="2.1">
 	<persistence-unit name="introsde-jpa" transaction-type="RESOURCE_LOCAL">
 		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
-		<class>introsde.assignment.soap.document.model.HealthMeasureHistory</class>
+		<!--<class>introsde.assignment.soap.document.model.HealthMeasureHistory</class>
 		<class>introsde.assignment.soap.document.model.LifeStatus</class>
 		<class>introsde.assignment.soap.document.model.MeasureDefaultRange</class>
-		<class>introsde.assignment.soap.document.model.MeasureDefinition</class>
+		<class>introsde.assignment.soap.document.model.MeasureDefinition</class>-->
 		<class>introsde.assignment.soap.document.model.Person</class>
+		<class>introsde.assignment.soap.document.model.Measure</class>
 		<properties>
 			<!-- the jdbc driver we will use to connect to the database change it 
 				depending of what database you use -->
 			<property name="javax.persistence.jdbc.driver" value="org.sqlite.JDBC" />
 			<!-- the last part of the url is the path to the sqlite file of the db, 
 				in this case it should be on the root folder of the project -->
-			<property name="javax.persistence.jdbc.url" value="jdbc:sqlite:lifecoach.sqlite" />
+			<property name="javax.persistence.jdbc.url" value="jdbc:sqlite:database.sqlite" />
 			<!-- set it to ALL to see all the JPA related debugging information -->
 			<property name="eclipselink.logging.level" value="INFO" />
 			<!-- we will use this to automatically add elements to our database if 

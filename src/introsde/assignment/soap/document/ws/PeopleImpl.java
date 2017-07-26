@@ -1,10 +1,15 @@
 package introsde.assignment.soap.document.ws;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import javax.jws.WebMethod;
+import javax.jws.WebResult;
 import javax.jws.WebService;
 
-import introsde.assignment.soap.document.model.LifeStatus;
+import introsde.assignment.soap.document.model.Measure;
+//import introsde.assignment.soap.document.model.LifeStatus;
 import introsde.assignment.soap.document.model.Person;
 
 //Service Implementation
@@ -12,6 +17,18 @@ import introsde.assignment.soap.document.model.Person;
 @WebService(endpointInterface = "introsde.assignment.soap.document.ws.People",
 	serviceName="PeopleService")
 public class PeopleImpl implements People {
+	
+	@Override
+	public void clean() {
+		Person p = Person.getPersonById(1);
+		List<Measure> measures = Measure.getAll();
+		for(Measure measure:measures){
+			System.out.println(measure.getIdMeasure());
+			measure.setPerson(p);
+			Measure.updateMeasure(measure);
+			System.out.println(Measure.getMeasureById(measure.getIdMeasure()).getPerson());
+		}
+	}
 
 	/*
 	 * Method #2: readPerson(Long id) => Person | should give
@@ -21,13 +38,7 @@ public class PeopleImpl implements People {
 	 */
 	@Override
 	public Person readPerson(int id) {
-		System.out.println("---> Reading Person by id = "+id);
 		Person p = Person.getPersonById(id);
-		if (p!=null) {
-			System.out.println("---> Found Person by id = "+id+" => "+p.getName());
-		} else {
-			System.out.println("---> Didn't find any Person with  id = "+id);
-		}
 		return p;
 	}
 
@@ -80,6 +91,76 @@ public class PeopleImpl implements People {
 			return -1;
 		}
 	}
+	
+    /*
+     * Method #6: readPersonHistory(Long id, String measureType) => List 
+     * should return the list of values (the history) of {measureType}
+     *  (e.g. weight) for Person identified by {id}
+     */
+    @Override
+    public List<String> readPersonHistory(int id, String measureType){
+    	List<String> measureTypes = new ArrayList<String>();
+    	Person p = Person.getPersonById(id);
+    	List<Measure> measures = Measure.getAll();
+    	for(Measure measure:measures){
+    		if(measure.getMeasureType().equals(measureType)
+    				&& measure.getPerson()!=null &&
+    						measure.getPerson().getIdPerson()==id)
+    			measureTypes.add(measure.getMeasureValue());
+    	}
+    	return measureTypes;
+    }
+    
+    /*
+     * Method #7: readMeasureTypes() => List should return the list 
+     * of measures
+     */
+    @Override
+    public List<Measure> readMeasureTypes(){
+		return Measure.getAll();    	
+    }
+    
+    /*
+     * Method #8: readPersonMeasure(Long id, String measureType, Long mid) => Measure
+     *  should return the value of {measureType} (e.g. weight) identified by 
+     *  {mid} for Person identified by {id}
+     */
+    @Override
+    public String readPersonMeasure(int id, String measureType, int mid){
+    	try{
+	    	Measure measure = Measure.getMeasureById(new Long(mid));
+    		System.out.println(measure.getMeasureValue()+measure.getMeasureType());
+    		System.out.println(measure.getPerson().getIdPerson());
+	    	if(measure!= null && (measure.getMeasureType()).equals(measureType) && 
+	    			measure.getPerson().getIdPerson() == id){
+	    		System.out.println("IFFFFFFFF");
+	    		return measure.getMeasureValue();
+	    	}
+	    	else
+	    		return "ERROR ELSE";
+    	} catch(Exception e){return "ERROR EXCEPTION";}
+	}
+    
+    /*
+     * Method #9: savePersonMeasure(Long id, Measure m) =>should save a new 
+     * measure object {m} (e.g. weight) of Person identified by {id} and 
+     * archive the old value in the history
+     */
+    @Override
+    public Long savePersonMeasure(int id, Measure newMeasure){
+    	try{
+	    	Date now = new Date();
+	    	newMeasure.setDateRegistered(now);
+	    	Person p = Person.getPersonById(id);
+	    	newMeasure.setPerson(p);
+			Measure savedMeasure = Measure.saveMeasure(newMeasure);
+	    	p.addMeasure(savedMeasure);
+			
+			return savedMeasure.getIdMeasure();
+    	} catch(Exception e){
+    		return new Long(-1);
+    	}
+	}
     
     /*
      * Method #10: updatePersonMeasure(Long id, Measure m) => Measure | should
@@ -87,14 +168,24 @@ public class PeopleImpl implements People {
      *  identified by {id}
      */
 	@Override
-	public int updatePersonHP(int id, LifeStatus hp) {
-		LifeStatus ls = LifeStatus.getLifeStatusById(hp.getIdMeasure());
-		if (ls.getPerson().getIdPerson() == id) {
-			LifeStatus.updateLifeStatus(hp);
-			return hp.getIdMeasure();
-		} else {
-			return -1;
-		}
+	public Long updatePersonHP(int id, Measure m){
+		try{
+			Person p = Person.getPersonById(id);
+			Measure oldMeasure = Measure.getMeasureById(m.getIdMeasure());
+			for(Measure measure: p.getMeasures()){
+				if(measure.getIdMeasure()==oldMeasure.getIdMeasure()){
+		    		p.removeMeasure(measure);
+					Date now = new Date();	        	
+					measure.setDateRegistered(now);   		
+					measure.setPerson(p);
+					measure.setMeasureValue(m.getMeasureValue());
+		    		Measure updated = Measure.updateMeasure(m);
+		    		p.addMeasure(measure);
+		    		return updated.getIdMeasure();
+				}
+			}return new Long(-2);
+		} catch(Exception e){return new Long(-1);}
+    	
 	}
 
 }

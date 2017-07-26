@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.apache.commons.beanutils.converters.DateConverter;
+//import org.apache.commons.beanutils.converters.DateConverter;
 
 import introsde.assignment.soap.document.dao.LifeCoachDao;
 
@@ -38,10 +38,9 @@ import introsde.assignment.soap.document.dao.LifeCoachDao;
 @NamedQueries({
 		@NamedQuery(name = "Measure.findAll", query = "SELECT m FROM Measure m"),
 		@NamedQuery(name = "Measure.findByPersonId", query = "SELECT m FROM Measure m WHERE m.person = ?1"),
-		@NamedQuery(name = "Measure.findByMeasureType", query = "SELECT m FROM Measure m WHERE m.person = ?1 AND m.measureType = ?2 AND m.isCurrent = 0"),
-		@NamedQuery(name = "Measure.findMeasureTypes", query = "SELECT DISTINCT m.measureType FROM Measure m"),
-		@NamedQuery(name = "Measure.findByMeasureMid", query = "SELECT m FROM Measure m WHERE m.person = ?1 AND m.measureType = ?2 AND m.idMeasure =?3"),
-		@NamedQuery(name = "Measure.getCurrentMeasure", query = "SELECT m FROM Measure m WHERE m.person = ?1 AND m.measureType = ?2 AND m.isCurrent = 1") })
+		@NamedQuery(name = "Measure.findByMeasureType", query = "SELECT m FROM Measure m WHERE m.person = ?1 AND m.type = ?2"),
+		@NamedQuery(name = "Measure.findMeasureTypes", query = "SELECT DISTINCT m.type FROM Measure m"),
+		@NamedQuery(name = "Measure.findByMeasureMid", query = "SELECT m FROM Measure m WHERE m.person = ?1 AND m.type = ?2 AND m.idMeasure =?3") })
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement
 public class Measure implements Serializable {
@@ -57,25 +56,19 @@ public class Measure implements Serializable {
 
 	@Temporal(TemporalType.DATE)
 	@Column(name = "dateRegistered")
-	@Convert(converter = DateConverter.class)
 	private Date dateRegistered;
 
-	@Column(name = "measureType")
-	private String measureType;
-
-	@Column(name = "measureValue")
-	private String measureValue;
-
-	@Column(name = "valueType")
-	@XmlElement(name="measureValueType")
-	private String valueType;
-
-	@Column(name="isCurrent")
-	@XmlTransient
-	private int isCurrent; // 1 current Health, 0 history Health
+    @Column(name="\"value\"")
+    private String value;
+    
+    @Column(name="\"valueType\"")
+    private String valueType;
+    
+    @Column(name="\"type\"")
+    private String type;
 
 	@ManyToOne
-	@JoinColumn(name = "idPerson", referencedColumnName = "idPerson")
+	@JoinColumn(name = "idPerson", referencedColumnName = "\"idPerson\"")
 	@XmlTransient
 	private Person person;
 	
@@ -83,8 +76,8 @@ public class Measure implements Serializable {
 	
 	public Measure(Date dRegistered, String mType, String mValue, String mValueType, Person person){
 		this.dateRegistered = dRegistered;
-		this.measureType = mType;
-		this.measureValue = mValue;
+		this.type = mType;
+		this.value = mValue;
 		this.valueType = mValueType;
 		this.person = person;
 	}
@@ -99,19 +92,15 @@ public class Measure implements Serializable {
 	}
 
 	public String getMeasureType() {
-		return measureType;
+		return type;
 	}
 
 	public String getMeasureValue() {
-		return measureValue;
+		return value;
 	}
 
 	public String getValueType() {
 		return valueType;
-	}
-
-	public int getIsCurrent() {
-		return isCurrent;
 	}
 	
 	public Person getPerson() {
@@ -128,19 +117,15 @@ public class Measure implements Serializable {
 	}
 
 	public void setMeasureType(String measureType) {
-		this.measureType = measureType;
+		this.type = measureType;
 	}
 
 	public void setMeasureValue(String measureValue) {
-		this.measureValue = measureValue;
+		this.value = measureValue;
 	}
 
 	public void setValueType(String valueType) {
 		this.valueType = valueType;
-	}
-
-	public void setIsCurrent(int isCurrent) {
-		this.isCurrent = isCurrent;
 	}
 	
 	public void setPerson(Person person) {
@@ -149,7 +134,7 @@ public class Measure implements Serializable {
 
 	public String toString() {
 		return "Measure ( " + idMeasure + ", " + dateRegistered + ", "
-				+ measureType + ", " + measureValue + ", " + valueType + ", " + isCurrent
+				+ type + ", " + value + ", " + valueType + ", "
 				+ " )";
 	}
 

@@ -37,6 +37,7 @@ public enum LifeCoachDao {
 	
 	// Person related operations could also directly go into the "Person" Model
 	// Check Methods in LifeStaus as example
+	/*
 	public static Person getPersonById(Long personId) {
 		EntityManager em = instance.createEntityManager();
 		Person p = em.find(Person.class, personId);
@@ -50,6 +51,7 @@ public enum LifeCoachDao {
 	    instance.closeConnections(em);
 	    return list;
 	}
+	*/
 	
 	// add other database global access operations
 
