@@ -4,7 +4,7 @@ import javax.xml.ws.Endpoint;
 import introsde.assignment.soap.document.ws.PeopleImpl;
 
 public class PeoplePublisher {
-	public static String SERVER_URL = "http://localhost";
+	public static String SERVER_URL = "https://chimirri-assignment-3-server.herokuapp.com";
 	public static String PORT = "6907";
 	public static String BASE_URL = "/ws/people";
 	
